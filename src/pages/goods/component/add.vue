@@ -104,7 +104,7 @@ export default {
         market_price: "", //市场价格
         img: null,
         specsid: 1, //商品规格编号
-        specsattr: "", //商品规格属性
+        specsattr: [], //商品规格属性
         description:"",
         isnew: 1,
         ishot: 1,
@@ -187,14 +187,12 @@ export default {
     },
     // 添加数据
     add() {
+      this.specsattr = JSON.stringify(this.specsattr)
       requestGoodsAdd(this.form).then((res) => {
         if (res.data.code == 200) {
           successAlert("添加成功");
           this.cancel();
-          this.responseGoodsList({
-            page: 1,
-            size: 10,
-          });
+          this.$emit('responseGoodsList')
         } else {
           warningAlert("添加失败");
         }

@@ -25,9 +25,9 @@
         </el-select>
       </el-form-item>
 
-        <el-form-item label="菜单地址" label-width="80px" v-else>
+        <el-form-item label="菜单地址123" label-width="80px" v-else>
           <el-select v-model="form.url">
-            <el-option label="--请选择--" value disabled></el-option>
+            <el-option label="--请选择123--" value disabled></el-option>
             <el-option v-for="item in urls" :key="item" :label="item" :value="item"></el-option>
           </el-select>
         </el-form-item>
@@ -75,7 +75,8 @@ export default {
       ],
       //路由集合
       urls: [
-        "/home",
+        "/member",
+        "/home1",
         "/menu",
         "/role",
         "/manage",
@@ -83,7 +84,7 @@ export default {
         "/spec",
         "/goods",
         "/banner",
-        "/seckill",
+        "/seckill", 
       ],
        form: {
         url: "",
@@ -100,18 +101,7 @@ export default {
         "el-icon-s-operation",
         "el-icon-s-grid",
       ],
-      //菜单地址
-      urls: [
-        "/home",
-        "/menu",
-        "/role",
-        "/manage",
-        "/cate",
-        "/spec",
-        "/goods",
-        "/banner",
-        "/seckill",
-      ],
+      
      
     };
   },

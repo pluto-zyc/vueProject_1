@@ -12,8 +12,9 @@
 </template>
 
 <script>
-import {requestLogin} from '../../utils/request'
+import {mapGetters,mapActions} from 'vuex'
 import {successAlert,warningAlert} from '../../utils/alert'
+import {requestLogin} from '../../utils/request'
 export default {
   data() {
     return {
@@ -23,11 +24,21 @@ export default {
       }
     };
   },
+  computed:{
+
+  },
   methods: {
+    ...mapActions({
+       "changeUserS":'changeUser'   //获取中间层user
+    }),
     login() {
         requestLogin(this.user).then((res)=>{
           if(res.data.code==200){
-            this.$router.push('/')
+            successAlert('登录成功')
+            this.changeUserS(res.data.list)
+            this.$router.push('/home')
+          }else{
+            warningAlert(res.data.msg)
           }
         })
     },

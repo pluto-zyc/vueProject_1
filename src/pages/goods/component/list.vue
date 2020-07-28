@@ -2,13 +2,13 @@
   <div class="box">
     <template>
       <el-table :data="goodsList" stripe style="width: 100%">
-        <el-table-column prop="date" label="商品编号" width="180"></el-table-column>
+        <el-table-column prop="id" label="商品编号" width="180"></el-table-column>
 
-        <el-table-column prop="name" label="商品名称" width="180"></el-table-column>
+        <el-table-column prop="goodsname" label="商品名称" width="180"></el-table-column>
 
-        <el-table-column prop="address" label="商品价格"></el-table-column>
+        <el-table-column prop="price" label="商品价格"></el-table-column>
 
-        <el-table-column prop="address" label="市场价格"></el-table-column>
+        <el-table-column prop="market_price" label="市场价格"></el-table-column>
 
         <el-table-column prop="address" label="图片">
           <template slot-scope="scope">
@@ -16,21 +16,21 @@
           </template>
         </el-table-column>
 
-        <el-table-column prop="address" label="是否新品">
+        <el-table-column prop="isnew" label="是否新品">
           <template slot-scope="scope">
-            <el-button type="primary" v-if="scope.row.status==1">是</el-button>
+            <el-button type="primary" v-if="scope.row.isnew==1">是</el-button>
             <el-button type="danger" v-else>否</el-button>
           </template>
         </el-table-column>
 
-        <el-table-column prop="address" label="是否热卖">
+        <el-table-column prop="ishot" label="是否热卖">
           <template slot-scope="scope">
-            <el-button type="primary" v-if="scope.row.status==1">是</el-button>
+            <el-button type="primary" v-if="scope.row.hot==1">是</el-button>
             <el-button type="danger" v-else>否</el-button>
           </template>
         </el-table-column>
 
-        <el-table-column prop="address" label="状态">
+        <el-table-column prop="status" label="状态">
           <template slot-scope="scope">
             <el-button type="primary" v-if="scope.row.status==1">启用</el-button>
             <el-button type="danger" v-else>禁用</el-button>
@@ -44,6 +44,14 @@
           </template>
         </el-table-column>
       </el-table>
+
+      <el-pagination
+        background
+        layout="prev, pager, next"
+        :page-size="size"
+        :total="total"
+        @current-change="changeSize"
+      ></el-pagination>
     </template>
   </div>
 </template>
@@ -52,10 +60,15 @@
 <script>
 import { mapGetters, mapActions } from "vuex";
 import { successAlert, warningAlert } from "../../../utils/alert";
+import { requestGoodsCount } from "../../../utils/request";
 export default {
   components: {},
   data() {
-    return {};
+    return {
+      total: 0, //总数
+      size: 2, //一页几条
+      nowPage: 1, //当前
+    };
   },
   computed: {
     ...mapGetters({
@@ -66,14 +79,28 @@ export default {
     ...mapActions({
       responseGoodsList: "goods/responseList",
     }),
+    changeSize(e) {
+      (this.nowPage = e),
+        this.responseGoodsList({
+          page: this.nowPage,
+          size: this.size,
+        });
+    },
   },
   mounted() {
+    requestGoodsCount().then((res) => {
+      this.total = res.data.list[0].total;
+    });
     this.responseGoodsList({
-      page: 1,
-      size: 10,
+      page: this.now,
+      size: this.size,
     });
   },
 };
 </script>
 <style scoped>
+img {
+  width: 70px;
+  height: 70px;
+}
 </style>
