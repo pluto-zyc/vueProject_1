@@ -7,7 +7,14 @@
 
       <el-form-item label="角色权限">
         <!-- node-key="id" -->
-        <el-tree :data="menulist" :default-checked-keys="defaultkey" show-checkbox ref="tree" node-key="id" :props="defaultProps"></el-tree>
+        <el-tree
+          :data="menulist"
+          :default-checked-keys="defaultkey"
+          show-checkbox
+          ref="tree"
+          node-key="id"
+          :props="defaultProps"
+        ></el-tree>
       </el-form-item>
 
       <el-form-item label="状态">
@@ -18,14 +25,17 @@
         <el-button type="primary" v-if="info.isAdd" @click="add">添加</el-button>
         <el-button type="primary" v-else @click="update">修改</el-button>
       </el-form-item>
-
     </el-form>
   </el-dialog>
 </template>
 
 <script>
 import { mapGetters, mapActions } from "vuex";
-import { requestRoleAdd,requestRoleDetail,requestRoleUpdate} from "../../../utils/request"; //菜单添加
+import {
+  requestRoleAdd,
+  requestRoleDetail,
+  requestRoleUpdate,
+} from "../../../utils/request"; //菜单添加
 import { successAlert, warningAlert } from "../../../utils/alert"; // 提示框
 export default {
   props: ["info"],
@@ -38,10 +48,10 @@ export default {
     return {
       form: {
         rolename: "", //名称  String
-        menus: " ", //权限 字符串类型数组
+        menus: "", //权限 字符串类型数组
         status: 1, //状态 Number
       },
-      defaultkey:[],
+      defaultkey: [],
       defaultProps: {
         children: "children",
         label: "title",
@@ -63,48 +73,52 @@ export default {
       this.form = {
         rolename: "", //名称  String
         menus: " ", //权限 字符串类型数组
-        status: 0, //状态 Number
+        status: 1, //状态 Number
       };
-      this.$refs.tree.setCheckedKeys([])
+      this.$refs.tree.setCheckedKeys([]);
     },
     // 取消
     cancel() {
       this.info.show = false;
     },
     // 获取一条
-     getRoleDetail(id){
-       requestRoleDetail({id:id}).then((res)=>{
-         this.form = res.data.list,
-         this.form.id = id
-         this.defaultkey =JSON.parse(res.data.list.menus)
-       })
-     },
+    getRoleDetail(id) {
+      requestRoleDetail({ id: id }).then((res) => {
+        (this.form = res.data.list), (this.form.id = id);
+        this.defaultkey = JSON.parse(res.data.list.menus);
+      });
+    },
     add() {
+      // 不能为空
+      if (this.form.menus == "[]" || !this.form.rolename) {
+        warningAlert("有字段为空");
+      } else {
+        this.form.menus = JSON.stringify(this.$refs.tree.getCheckedKeys());
+        requestRoleAdd(this.form).then((res) => {
+          if (res.data.code == 200) {
+            successAlert(res.data.list);
+            this.cancel();
+            this.empty();
+            this.responseRoleList();
+          } else {
+            warningAlert("添加失败");
+          }
+        });
+      }
+    },
+    update() {
       this.form.menus = JSON.stringify(this.$refs.tree.getCheckedKeys());
-      requestRoleAdd(this.form).then((res) => {
+      requestRoleUpdate(this.form).then((res) => {
         if (res.data.code == 200) {
-          successAlert(res.data.list);
-           this.cancel();
+          successAlert("修改成功");
+          this.cancel();
           this.empty();
-          this.responseRoleList()
-        }else{
-          warningAlert('添加失败')
+          this.responseRoleList();
+        } else {
+          warningAlert("修改失败");
         }
       });
     },
-    update(){
-      this.form.menus = JSON.stringify(this.$refs.tree.getCheckedKeys());
-       requestRoleUpdate(this.form).then((res)=>{
-            if(res.data.code==200){
-              successAlert('修改成功')
-              this.cancel()
-              this.empty()
-              this.responseRoleList()
-            }else{
-              warningAlert('修改失败')
-            }
-       })
-    }
   },
 };
 </script>

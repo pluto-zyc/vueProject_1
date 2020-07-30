@@ -16,6 +16,7 @@ import nav from './components/index'
 for (var i in nav) {
   Vue.component(i, nav[i])
 }
+// 
 Vue.prototype.$imgPre = "http://localhost:3000"
 // 引入element-ui
 import ElementUi from "element-ui"

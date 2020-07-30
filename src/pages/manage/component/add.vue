@@ -3,7 +3,7 @@
     <el-form :model="form">
       <el-form-item label="所属角色" label-width="80px">
         <el-select v-model="form.roleid" placeholder="请选择">
-          <el-option label="所属角色" value="shanghai" disabled=""></el-option>
+          <el-option label="所属角色" value="shanghai" disabled></el-option>
           <el-option v-for="i in roleList" :key="i.id" :label="i.rolename" :value="i.id"></el-option>
         </el-select>
       </el-form-item>
@@ -30,17 +30,22 @@
 
 <script>
 import { mapGetters, mapActions } from "vuex";
-import { requestManageAdd,requestManageDetail,requestManageUpdate,requestManageNum } from "../../../utils/request";
-import { warningAlert, successAlert } from '../../../utils/alert';
+import {
+  requestManageAdd,
+  requestManageDetail,
+  requestManageUpdate,
+  requestManageNum,
+} from "../../../utils/request";
+import { warningAlert, successAlert } from "../../../utils/alert";
 export default {
   props: ["info"],
   data() {
     return {
       form: {
-        roleid: 1,
+        roleid: "",
         username: "",
         password: "",
-        status:2,
+        status: 2,
       },
     };
   },
@@ -60,49 +65,53 @@ export default {
       responseManageList: "manage/responseList",
     }),
     // 请求一条
-      getManageDatil(id){
-        requestManageDetail({uid:id}).then((res)=>{
-          this.form = res.data.list
-          })
-      },
+    getManageDatil(id) {
+      requestManageDetail({ uid: id }).then((res) => {
+        this.form = res.data.list;
+      });
+    },
     // 取消
-    cancel(){
-      this.info.show = false
+    cancel() {
+      this.info.show = false;
     },
     // 置空
-    empty(){
+    empty() {
       this.form = {
         roleid: 1,
         username: "",
         password: "",
-        status:2,
-      }
+        status: 2,
+      };
     },
     add() {
-      requestManageAdd(this.form).then((res)=>{
-        if(res.data.code == 200){
-            successAlert(res.data.msg)
-            this.cancel()
+      if (!this.form.password || !this.form.roleid || !this.form.username) {
+        warningAlert("有字段为空");
+      } else {
+        requestManageAdd(this.form).then((res) => {
+          if (res.data.code == 200) {
+            successAlert(res.data.msg);
+            this.cancel();
             // this.empty()
-      //  this.responseManageList()
-      // 通知父级我点了添加   你需要获取总条数并修改list的total 调用请求管理员列表更新（当前页数，一页显示几条）
-            this.$emit('changeTotal')
-        }else{
-          warningAlert('添加失败')
-        }
-      })
+            //  this.responseManageList()
+            // 通知父级我点了添加   你需要获取总条数并修改list的total 调用请求管理员列表更新（当前页数，一页显示几条）
+            this.$emit("changeTotal");
+          } else {
+            warningAlert("添加失败");
+          }
+        });
+      }
     },
     // 修改
-    update(){
-      requestManageUpdate(this.form).then((res)=>{
-           if(res.data.code==200){
-             successAlert(res.data.msg)
-             this.empty()
-             this.cancel()
-             this.responseManageList()
-           }
-      })
-    }
+    update() {
+      requestManageUpdate(this.form).then((res) => {
+        if (res.data.code == 200) {
+          successAlert(res.data.msg);
+          this.empty();
+          this.cancel();
+          this.responseManageList();
+        }
+      });
+    },
   },
 };
 </script>

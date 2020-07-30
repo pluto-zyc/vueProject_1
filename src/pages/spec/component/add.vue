@@ -36,13 +36,18 @@
 <script>
 //  import {mapGetters,mapActions} from 'vuex'
 import { successAlert, warningAlert } from "../../../utils/alert";
-import { requestSpecAdd, requestSpecDetail,requestSpecUpdate } from "../../../utils/request";
-import {mapGetters,mapActions} from 'vuex'
+import {
+  requestSpecAdd,
+  requestSpecDetail,
+  requestSpecUpdate,
+} from "../../../utils/request";
+import { mapGetters, mapActions } from "vuex";
 
 export default {
   props: ["info"],
   data() {
     return {
+      is: true,
       newArr: [],
       dynamicValidateForm: {
         domains: [
@@ -60,27 +65,27 @@ export default {
     };
   },
   computed: {
-     ...mapGetters({
-       specList:'spec/list'
-     })
+    ...mapGetters({
+      specList: "spec/list",
+    }),
   },
   methods: {
-     ...mapActions({
-        specResponseList: "spec/responseList",
-     }),
+    ...mapActions({
+      specResponseList: "spec/responseList",
+    }),
     // 置空
     empty() {
       this.form = {
         specsname: "",
         status: 1,
-        attrs: '',
+        attrs: "",
       };
-      this.arr=[],
-      this.dynamicValidateForm.domains = [
-        {
-          value: "",
-        },
-      ];
+      (this.arr = []),
+        (this.dynamicValidateForm.domains = [
+          {
+            value: "",
+          },
+        ]);
     },
     // 取消
     cancel() {
@@ -88,54 +93,67 @@ export default {
     },
     // 添加数据
     add() {
+      if (!this.form.specsname) {
+        warningAlert("请填写规格名称~");
+        return;
+      }
       // 开始就置空
-       this.newArr = []
+      this.newArr = [];
       //  比那里用户选择的属性attrs
       this.dynamicValidateForm.domains.forEach((item) => {
         this.newArr.push(item.value);
       });
-      // 给参数赋值用于 请求
-      this.form.attrs = JSON.stringify(this.newArr);
-      console.log(this.form.attrs);
-      // 请求一条渲染 add面板
-      requestSpecAdd(this.form).then((res) => {
-        if (res.data.code == 200) {
-          successAlert(res.data.msg);
-          this.empty();
-          this.cancel();
-        } else {
-          warningAlert("添加失败");
+      this.newArr.forEach((item) => {
+        if (!item) {
+          this.is = false;
         }
       });
+      if (this.is == false) {
+        warningAlert("请填写规格属性");
+        this.is = true;
+      } else {
+        // 给参数赋值用于 请求
+        this.form.attrs = JSON.stringify(this.newArr);
+        console.log(this.form);
+        // 请求一条渲染 add面板
+        requestSpecAdd(this.form).then((res) => {
+          if (res.data.code == 200) {
+            successAlert(res.data.msg);
+            this.empty();
+            this.cancel();
+          } else {
+            warningAlert("添加失败");
+          }
+        });
+      }
     },
     // 请求一条
     getSpecDetail(id) {
       requestSpecDetail({ id: id }).then((res) => {
-        this.form.id = res.data.list[0].id
+        this.form.id = res.data.list[0].id;
         // 请求到数据 给form赋值
         this.form.specsname = res.data.list[0].specsname;
         this.form.status = res.data.list[0].status;
-         this.dynamicValidateForm.domains=[]
+        this.dynamicValidateForm.domains = [];
         // 给dynamicValidateForm赋值
-         JSON.parse(res.data.list[0].attrs).forEach((item)=>{
-          this.dynamicValidateForm.domains.push({value:item})
-         })
-          
+        JSON.parse(res.data.list[0].attrs).forEach((item) => {
+          this.dynamicValidateForm.domains.push({ value: item });
+        });
       });
     },
     // 修改数据
     update() {
-      requestSpecUpdate(this.form).then((res)=>{
-        if(res.data.code==200){
-          successAlert('修改成功')
-          this.empty()
-          this.cancel()
+      requestSpecUpdate(this.form).then((res) => {
+        if (res.data.code == 200) {
+          successAlert("修改成功");
+          this.empty();
+          this.cancel();
           this.specResponseList({
-           page:1,
+            page: 1,
             size: 6,
-          })
+          });
         }
-      })
+      });
     },
     removeDomain(item) {
       var index = this.dynamicValidateForm.domains.indexOf(item);

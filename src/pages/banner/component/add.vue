@@ -1,7 +1,6 @@
 <template>
   <el-dialog :title="info.title" :visible.sync="info.show">
     <el-form :model="form">
-     
       <el-form-item label="标题" prop="name" label-width="80px">
         <el-input v-model="form.title"></el-input>
       </el-form-item>
@@ -29,23 +28,27 @@
 <script>
 import { mapGetters, mapActions } from "vuex";
 import { successAlert, warningAlert } from "../../../utils/alert";
-import { requestBannerAdd,requestBannerDetail,requestBannerUpdate } from "../../../utils/request";
+import {
+  requestBannerAdd,
+  requestBannerDetail,
+  requestBannerUpdate,
+} from "../../../utils/request";
 export default {
   props: ["info"],
   data() {
     return {
       imageUrl: "",
       form: {
-        title: 1,
-        img:null,
+        title: "",
+        img: null,
         status: 1,
       },
     };
   },
   methods: {
-     ...mapActions({
-       responseBannerList:'banner/responseList'
-     }),
+    ...mapActions({
+      responseBannerList: "banner/responseList",
+    }),
     // 置空
     empty() {
       this.form = {
@@ -56,11 +59,11 @@ export default {
       };
     },
     // 取消
-    cancel(){
-      this.info.show = false
+    cancel() {
+      this.info.show = false;
     },
     // 编辑请求
-    getDetail(id){
+    getDetail(id) {
       requestBannerDetail({ id: id }).then((res) => {
         this.form = res.data.list;
         this.form.id = id;
@@ -89,28 +92,31 @@ export default {
     },
     // 添加
     add() {
-      console.log(this.form);
-      requestBannerAdd(this.form).then((res) => {
+      if (this.form.title == "" || this.form.img == null) {
+        warningAlert("有字段为空");
+      } else {
+        requestBannerAdd(this.form).then((res) => {
+          if (res.data.code == 200) {
+            successAlert("添加成功");
+            this.cancel();
+            this.responseBannerList();
+          }
+        });
+      }
+    },
+    // 修改
+    update() {
+      requestBannerUpdate(this.form).then((res) => {
         if (res.data.code == 200) {
-          successAlert("添加成功");
-          this.cancel()
-          this.responseBannerList()
+          successAlert("修改成功");
+          this.empty();
+          this.cancel();
+          this.responseBannerList();
+        } else {
+          warningAlert("修改失败");
         }
       });
     },
-    // 修改
-    update(){
-       requestBannerUpdate(this.form).then((res)=>{
-         if(res.data.code==200){
-           successAlert('修改成功')
-           this.empty()
-           this.cancel()
-           this.responseBannerList()
-         }else{
-           warningAlert('修改失败')
-         }
-       })
-    }
   },
 };
 </script>

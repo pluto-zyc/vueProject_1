@@ -1,8 +1,8 @@
 <template>
   <div>
-    <el-table :data="bannerList" style="width: 100%;margin-bottom: 20px;" row-key="id" border>
+    <el-table :data="seckillList" style="width: 100%;margin-bottom: 20px;" row-key="id" border>
       <!-- :tree-props="{children: 'children'}" -->
-      <el-table-column prop="id" label="活动名称" width="180"></el-table-column>
+      <el-table-column prop="title" label="活动名称" width="180"></el-table-column>
 
 
       <el-table-column prop="status" label="状态">
@@ -25,19 +25,24 @@
 <script>
 import { mapGetters, mapActions } from "vuex";
 import { successAlert, warningAlert } from "../../../utils/alert";
-import { requestSeckillDelete } from "../../../utils/request";
+import { requestSeckillDelete,requestGoodsCount } from "../../../utils/request";
 export default {
   data() {
-    return {};
+    return {
+      goodsTotal:0,
+    };
   },
   computed: {
     ...mapGetters({
       bannerList: "banner/list",
+      seckillList: "seckill/list",
     }),
   },
   methods: {
     ...mapActions({
       responseSeckillList: "seckill/responseList",
+      responseGoodsList: "goods/responseList",
+      responseCateList: "cate/responseList",
     }),
     // 修改通知
     edit(id) {

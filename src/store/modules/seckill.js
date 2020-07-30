@@ -1,4 +1,4 @@
-import {requestBannerList} from '../../utils/request'
+import {requestSeckillList} from '../../utils/request'
 // 定义变量
 const state = {
     list:[]
@@ -12,7 +12,7 @@ const mutations = {
 // 请求列表 并通知方法修改变量
 const actions ={
     responseList(context){
-        requestBannerList().then((res)=>{
+        requestSeckillList().then((res)=>{
             context.commit('changeList',res.data.list)
         })
     }

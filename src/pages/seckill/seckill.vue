@@ -30,17 +30,18 @@ export default {
         this.info.show=true,
         this.info.isAdd=true,
         this.info.title='秒杀添加'
-        this.$refs.add.getDetail(id)
+        // this.$refs.add.getDetail(id)
     },
     // 点了编辑
     edit(id){
         this.info.show=true,
         this.info.isAdd=false,
-        this.info.title='商品修改'
+        this.info.title='秒杀修改'
         this.$refs.add.getDetail(id)
     }
   },
-  mounted() {},
+  mounted() {
+  },
 };
 </script>
 <style scope>

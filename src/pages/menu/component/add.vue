@@ -7,9 +7,9 @@
 
       <el-form-item label="上级菜单">
         <el-select v-model="form.pid" placeholder="请选择">
-          <el-option label="--请选择--" value="" disabled></el-option>
+          <el-option label="--请选择--" value disabled></el-option>
           <el-option label="顶级菜单" :value="0"></el-option>
-          <el-option v-for="i in menuList" :key="i.id" :label="i.title"  :value="i.id"></el-option>
+          <el-option v-for="i in menuList" :key="i.id" :label="i.title" :value="i.id"></el-option>
         </el-select>
       </el-form-item>
 
@@ -19,18 +19,18 @@
       </el-form-item>
 
       <el-form-item label="菜单图标" label-width="80px" v-if="form.type==1">
-        <el-select v-model="form.icon" placeholder="请选择">
-          <el-option label="请选择" value disabled></el-option>
+        <el-select v-model="form.icon">
+          <!-- <el-option label="请选择" value="" disabled></el-option> -->
           <el-option v-for="i in icons" :key="i" :label="i" :value="i"></el-option>
         </el-select>
       </el-form-item>
 
-        <el-form-item label="菜单地址123" label-width="80px" v-else>
-          <el-select v-model="form.url">
-            <el-option label="--请选择123--" value disabled></el-option>
-            <el-option v-for="item in urls" :key="item" :label="item" :value="item"></el-option>
-          </el-select>
-        </el-form-item>
+      <el-form-item label="菜单地址" label-width="80px" v-else>
+        <el-select v-model="form.url">
+          <el-option label="请选择" value="" disabled></el-option>
+          <el-option v-for="item in urls" :key="item" :label="item" :value="item"></el-option>
+        </el-select>
+      </el-form-item>
 
       <el-form-item label="状态">
         <el-switch v-model="form.status" :active-value="1" :inactive-value="2"></el-switch>
@@ -48,15 +48,15 @@
 
 <script>
 // 菜单添加
-import {RequestAdd} from '../../../utils/request'
+import { RequestAdd } from "../../../utils/request";
 
-import {successAlert,warningAlert} from '../../../utils/alert'
+import { successAlert, warningAlert } from "../../../utils/alert";
 
 import { mapGetters, mapActions } from "vuex";
 // 获取一条数据
-import {RequestDetail} from '../../../utils/request'
+import { RequestDetail } from "../../../utils/request";
 // 菜单修改
-import {RequestMenuUpdate} from '../../../utils/request'
+import { RequestMenuUpdate } from "../../../utils/request";
 export default {
   computed: {
     ...mapGetters({
@@ -66,7 +66,7 @@ export default {
   props: ["info"],
   data() {
     return {
-       //图标集合
+      //图标集合
       icons: [
         "el-icon-setting",
         "el-icon-s-help",
@@ -84,33 +84,24 @@ export default {
         "/spec",
         "/goods",
         "/banner",
-        "/seckill", 
+        "/seckill",
       ],
-       form: {
+      form: {
         url: "",
         title: "",
-        menu: "",
+        pid: 1,
         status: 1,
         type: 1,
         icon: "",
       },
-      //图标集合
-      icons: [
-        "el-icon-setting",
-        "el-icon-s-help",
-        "el-icon-s-operation",
-        "el-icon-s-grid",
-      ],
-      
-     
     };
   },
   methods: {
-     ...mapActions({
+    ...mapActions({
       responseList: "menu/responseList",
     }),
     // 获取某一条数据
-     getDetail(id) {
+    getDetail(id) {
       RequestDetail({ id: id }).then((res) => {
         this.form = res.data.list;
         this.form.id = id;
@@ -128,41 +119,57 @@ export default {
       };
     },
     cancel() {
-       this.info.show = false;
-      if(!this.info.isAdd){
-        this.empty()
+      this.info.show = false;
+      if (!this.info.isAdd) {
+        this.empty();
       }
     },
     // 添加按钮
-    add(){
-       RequestAdd(this.form).then((res)=>{
-         if(res.data.code==200){
-          //  添加成功弹出成功提示
-           successAlert(res.data.msg);
-          //  关闭添加框
-           this.cancel();
-          this.responseList()
-         }else{
-          //  添加失败提示
-          warningAlert(res.data.msg)
-         }
-       })
+    add() {
+      if (
+        this.form.title &&
+        this.form.status &&
+        this.form.type 
+        
+      ) {
+        if (this.form.type == 1) {
+          this.form.icon != "";
+        } else {
+          this.form.url != "";
+        }
+        RequestAdd(this.form).then((res) => {
+          if (res.data.code == 200) {
+            //  添加成功弹出成功提示
+            successAlert(res.data.msg);
+            //  关闭添加框
+            this.cancel();
+            this.responseList();
+          } else {
+            //  添加失败提示
+            warningAlert(res.data.msg);
+          }
+        });
+      }else{
+        warningAlert('有字段为空')
+        console.log(this.form);
+      }
     },
+
     // 菜单修改
-    update(){
-      RequestMenuUpdate(this.form).then((res)=>{
-         if(res.data.code==200){
-           successAlert('修改成功')
-          
-           this.empty()//  清空add面板form数据
-           this.cancel() //  取消按钮
+    update() {
+      RequestMenuUpdate(this.form).then((res) => {
+        if (res.data.code == 200) {
+          successAlert("修改成功");
+
+          this.empty(); //  清空add面板form数据
+          this.cancel(); //  取消按钮
           //  重新渲染列表
-              this.responseList()
-         }else{
-           warningAlert('修改失败')
-         }
-      })
-    }
+          this.responseList();
+        } else {
+          warningAlert("修改失败");
+        }
+      });
+    },
   },
 };
 </script>

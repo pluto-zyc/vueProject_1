@@ -2,11 +2,11 @@
   <div class="box">
     <template>
       <el-table :data="goodsList" stripe style="width: 100%">
-        <el-table-column prop="id" label="商品编号" width="180"></el-table-column>
+        <el-table-column prop="id" label="商品编号" width="100"></el-table-column>
 
-        <el-table-column prop="goodsname" label="商品名称" width="180"></el-table-column>
+        <el-table-column prop="goodsname" label="商品名称" width="100"></el-table-column>
 
-        <el-table-column prop="price" label="商品价格"></el-table-column>
+        <el-table-column prop="price" label="商品价格" width="100"></el-table-column>
 
         <el-table-column prop="market_price" label="市场价格"></el-table-column>
 
@@ -37,12 +37,12 @@
           </template>
         </el-table-column>
 
-        <el-table-column prop="address" label="操作">
-          <template slot-scope="scope">
-            <el-button type="primary">编辑</el-button>
-            <!-- <el-button type="danger" v-else>禁用</el-button> -->
-          </template>
-        </el-table-column>
+         <el-table-column prop="address" label="操作">
+        <template slot-scope="scope">
+          <el-button type="primary" @click="edit(scope.row.id)">编辑</el-button>
+          <del-btn @confirm="del(scope.row.id)"></del-btn>
+        </template>
+      </el-table-column>
       </el-table>
 
       <el-pagination
@@ -60,7 +60,7 @@
 <script>
 import { mapGetters, mapActions } from "vuex";
 import { successAlert, warningAlert } from "../../../utils/alert";
-import { requestGoodsCount } from "../../../utils/request";
+import { requestGoodsCount,requestGoodsDelete } from "../../../utils/request";
 export default {
   components: {},
   data() {
@@ -85,6 +85,21 @@ export default {
           page: this.nowPage,
           size: this.size,
         });
+    },
+    // 删除
+    del(id) {
+        requestGoodsDelete({id:id}).then((res)=>{
+            if(res.data.code==200){
+              successAlert('删除成功')
+              this.responseGoodsList()
+            }else{
+              warningAlert('删除失败')
+            }
+        })
+    },
+     // 修改通知
+    edit(id){
+        this.$emit('edit',id)
     },
   },
   mounted() {

@@ -5,7 +5,7 @@
         <el-select v-model="form.pid" placeholder="请选择">
           <el-option label="请选择" value disabled></el-option>
           <el-option label="顶级分类" :value="0"></el-option>
-          <el-option v-for="i in cateList" :key="i.id" :label="i.rolename" :value="i.id"></el-option>
+          <el-option v-for="i in cateList" :key="i.id" :label="i.catename" :value="i.id"></el-option>
         </el-select>
       </el-form-item>
 
@@ -13,7 +13,7 @@
         <el-input v-model="form.catename"></el-input>
       </el-form-item>
 
-      <el-form-item label="图片" label-width="80px" v-if="form.pid!==0">
+      <el-form-item label="图片" label-width="80px" v-if="form.pid!=0">
         <div class="box-img">
           <h3>+</h3>
           <img v-if="imageUrl" :src="imageUrl" alt />
@@ -36,44 +36,48 @@
 <script>
 import { mapGetters, mapActions } from "vuex";
 import { successAlert, warningAlert } from "../../../utils/alert";
-import { requestCateAdd,requestCateDetail,requestCateUpdate } from "../../../utils/request";
+import {
+  requestCateAdd,
+  requestCateDetail,
+  requestCateUpdate,
+} from "../../../utils/request";
 export default {
   props: ["info"],
   data() {
     return {
       imageUrl: "",
       form: {
-        pid: 1,
+        pid: "",
         catename: "",
         img: "",
         status: 1,
       },
     };
   },
-  computed:{
+  computed: {
     ...mapGetters({
-      cateList:'cate/list'
-    })
+      cateList: "cate/list",
+    }),
   },
   methods: {
-     ...mapActions({
-       responseCateList:'cate/responseList'
-     }),
+    ...mapActions({
+      responseCateList: "cate/responseList",
+    }),
     // 置空
     empty() {
       this.form = {
-        pid: 1,
+        pid: "",
         catename: "",
         img: "",
         status: 1,
       };
     },
     // 取消
-    cancel(){
-      this.info.show = false
+    cancel() {
+      this.info.show = false;
     },
     // 编辑请求
-    getDetail(id){
+    getDetail(id) {
       requestCateDetail({ id: id }).then((res) => {
         this.form = res.data.list;
         this.form.id = id;
@@ -100,27 +104,40 @@ export default {
       this.form.img = file;
     },
     add() {
-      requestCateAdd(this.form).then((res) => {
+      
+      switch (true) {
+        case this.form.pid === "":
+          warningAlert("请选择上级分类");
+          break;
+        case !this.form.catename:
+          warningAlert("请填写分类名称~");
+          break;
+        case !this.form.img && this.form.pid != 0:
+          warningAlert("请选择图片");
+          break;
+        default:
+          requestCateAdd(this.form).then((res) => {
+            if (res.data.code == 200) {
+              successAlert("添加成功");
+              this.cancel();
+              this.responseCateList();
+            }
+          });
+      }
+    },
+    // 修改
+    update() {
+      requestCateUpdate(this.form).then((res) => {
         if (res.data.code == 200) {
-          successAlert("添加成功");
-          this.cancel()
-          this.responseCateList()
+          successAlert("修改成功");
+          this.empty();
+          this.cancel();
+          this.responseCateList();
+        } else {
+          warningAlert("修改失败");
         }
       });
     },
-    // 修改
-    update(){
-       requestCateUpdate(this.form).then((res)=>{
-         if(res.data.code==200){
-           successAlert('修改成功')
-           this.empty()
-           this.cancel()
-           this.responseCateList()
-         }else{
-           warningAlert('修改失败')
-         }
-       })
-    }
   },
 };
 </script>

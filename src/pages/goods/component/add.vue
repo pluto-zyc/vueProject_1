@@ -39,7 +39,7 @@
           </div>
         </el-form-item>
 
-        <el-form-item label="商品规格编号">
+        <el-form-item label="商品规格">
           <el-select v-model="form.specsid" @change="getEj2">
             <el-option label="请选择" value disabled></el-option>
             <el-option
@@ -87,7 +87,11 @@
 <script>
 import { mapGetters, mapActions } from "vuex";
 import { successAlert, warningAlert } from "../../../utils/alert";
-import { requestGoodsAdd } from "../../../utils/request";
+import {
+  requestGoodsAdd,
+  requestGoodsDetail,
+  requestGoodsUpdate,
+} from "../../../utils/request";
 export default {
   props: ["info"],
   components: {},
@@ -97,15 +101,15 @@ export default {
       secondArr_cate: [],
       secondArr_spec: [],
       form: {
-        first_cateid: 1, //一级分类编号
-        second_cateid: 1, //二级分类编号
+        first_cateid: "", //一级分类编号
+        second_cateid: "", //二级分类编号
         goodsname: "", //商品名称
         price: "", //商品价格
         market_price: "", //市场价格
         img: null,
-        specsid: 1, //商品规格编号
-        specsattr: [], //商品规格属性
-        description:"",
+        specsid: "", //商品规格编号
+        specsattr: "", //商品规格属性
+        description: "",
         isnew: 1,
         ishot: 1,
         status: 1,
@@ -125,10 +129,27 @@ export default {
       responseSpecList: "spec/responseList",
       responseGoodsList: "goods/responseList",
     }),
+    // 清空
+    empty() {
+      this.form = {
+        first_cateid: "", //一级分类编号
+        second_cateid: "", //二级分类编号
+        goodsname: "", //商品名称
+        price: "", //商品价格
+        market_price: "", //市场价格
+        img: null,
+        specsid: "", //商品规格编号
+        specsattr: "", //商品规格属性
+        description: "",
+        isnew: 1,
+        ishot: 1,
+        status: 1,
+      };
+    },
     // 获取二级
     getEj(id) {
       this.secondArr_cate = []; //清除上次labal
-      this.form.second_cateid = 1; //清除上次labal
+      this.form.second_cateid = ""; //清除上次labal
       //   遍历分类list 判断每一项的id是不是和选中到输入框的id相等
       this.cateList.forEach((item) => {
         if (item.id == this.form.first_cateid) {
@@ -146,7 +167,6 @@ export default {
       this.specList.forEach((item) => {
         // 判断每一项的id是不是和选中到输入框的id相等
         if (item.id == this.form.specsid) {
-
           JSON.parse(item.attrs).forEach((i) => {
             this.secondArr_spec.push(i);
           });
@@ -160,6 +180,17 @@ export default {
       this.responseSpecList({
         page: 1,
         size: 10,
+      });
+    },
+    // 获取一条
+    getDetail(id) {
+      requestGoodsDetail({ id: id }).then((res) => {
+        this.getEj2();
+        this.getEj();
+        this.form = res.data.list;
+        this.form.id = id;
+        this.imageUrl = this.$imgPre + res.data.list.img;
+        this.form.specsattr = res.data.list.specsattr.split(",");
       });
     },
     changeImg2(e) {
@@ -187,20 +218,62 @@ export default {
     },
     // 添加数据
     add() {
-      this.specsattr = JSON.stringify(this.specsattr)
-      requestGoodsAdd(this.form).then((res) => {
+      console.log(this.form);
+      console.log(Boolean("[]"));
+      switch (true) {
+        case !this.form.first_cateid:
+          warningAlert("请选择一级分类");
+          break;
+        case !this.form.second_cateid:
+          warningAlert("请选择二级分类");
+          break;
+        case !this.form.goodsname:
+          warningAlert("请输入商品名称");
+          break;
+        case !this.form.price:
+          warningAlert("请输入价格");
+          break;
+        case !this.form.market_price:
+          warningAlert("请输入市场价格");
+          break;
+        case !this.form.img:
+          warningAlert("请选择图片");
+          break;
+        case !this.form.specsid:
+          warningAlert("请选择商品规格");
+          break;
+        case this.form.specsattr.length == 0:
+          warningAlert("请选择规格属性");
+          break;
+        case !this.form.description:
+          warningAlert("请填写商品描述");
+          break;
+        default:
+          this.specsattr = JSON.stringify(this.specsattr);
+          requestGoodsAdd(this.form).then((res) => {
+            if (res.data.code == 200) {
+              successAlert("添加成功");
+              this.cancel();
+              this.$emit("responseGoodsList");
+            } else {
+              warningAlert("添加失败");
+            }
+          });
+      }
+    },
+    // 修改
+    update() {
+      requestGoodsUpdate(this.form).then((res) => {
         if (res.data.code == 200) {
-          successAlert("添加成功");
-          this.cancel();
-          this.$emit('responseGoodsList')
+          successAlert("修改成功");
+          this.cancel(), this.empty();
+          this.responseGoodsList();
         } else {
-          warningAlert("添加失败");
+          warningAlert("修改失败");
         }
       });
     },
-    update() {},
   },
-  mounted() {},
 };
 </script>
 <style scoped>
