@@ -3,7 +3,7 @@
     <el-row>
       <el-button type="primary" round @click="add">添加</el-button>
        <v-add :info="info" ref="add"></v-add>
-      <v-list @edit="edit"></v-list>
+      <v-list @edit="edit" ref="getPage"></v-list>
     </el-row>
   </div>
 </template>

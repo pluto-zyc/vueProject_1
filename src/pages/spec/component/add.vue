@@ -121,6 +121,10 @@ export default {
             successAlert(res.data.msg);
             this.empty();
             this.cancel();
+            this.specResponseList({
+              page: 1,
+              size: 2,
+            });
           } else {
             warningAlert("添加失败");
           }

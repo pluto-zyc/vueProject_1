@@ -23,18 +23,21 @@
         </el-table-column>
       </el-table>
 
-      <el-pagination background layout="prev, pager, next" :page-size="2" :total="2"></el-pagination>
+      <el-pagination background layout="prev, pager, next" :page-size="size" @current-change='changePage' :total="total"></el-pagination>
     </template>
   </div>
 </template>
 <script>
 import { mapGetters, mapActions } from "vuex";
 import { successAlert, warningAlert } from "../../../utils/alert";
-import { requestSpecDelete } from "../../../utils/request";
+import { requestSpecDelete,requestSpecNum } from "../../../utils/request";
 export default {
   components: {},
   data() {
     return {
+      total:0,
+      size:2,
+      nowPage:1
     };
   },
   computed: {
@@ -49,6 +52,14 @@ export default {
     // 编辑
     update(id) {
       this.$emit("edit", id);
+    },
+    // 分页
+    changePage(page){
+      this.nowPage = page
+      this.specResponseList({
+      page: this.nowPage,
+      size: this.size,
+    });
     },
     // 删除
     del(id) {
@@ -66,9 +77,12 @@ export default {
     },
   },
   mounted() {
+    requestSpecNum().then((res)=>{
+      this.total = res.data.list[0].total
+    })
     this.specResponseList({
-      page: 1,
-      size: 6,
+      page: this.nowPage,
+      size: this.size,
     });
   },
 };

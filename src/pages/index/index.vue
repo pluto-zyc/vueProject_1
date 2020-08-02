@@ -15,7 +15,7 @@
             <span slot="title">首页</span>
           </el-menu-item>
           <!-- 如果有目录 -->
-          <el-submenu
+          <!-- <el-submenu
             v-show="hasChildren"
             :index="item.id+''"
             :key="item.id"
@@ -26,9 +26,9 @@
               <span>{{item.title}}</span>
             </template>
             <el-menu-item v-for="(i) in item.children" :key="i.title" :index="i.url">{{i.title}}</el-menu-item>
-          </el-submenu>
+          </el-submenu> -->
           <!-- 如果 没有目录 -->
-          <el-menu-item
+          <!-- <el-menu-item
             v-show="!hasChildren"
             :index="i.url"
             v-for="(i) in user.menus"
@@ -36,6 +36,23 @@
           >
             <span slot="title">{{i.title}}</span>
           </el-menu-item>
+        </el-menu> -->
+
+         <!-- 目录和菜单混合 -->
+          <template v-for="(item) in user.menus">
+            <el-submenu v-if="item.children" :index="item.id+''" :key="item.id">
+              <template slot="title">
+                <i :class="item.icon"></i>
+                <span>{{item.title}}</span>
+              </template>
+              <el-menu-item v-for="(i) in item.children" :key="i.title" :index="i.url">{{i.title}}</el-menu-item>
+            </el-submenu>
+
+            <el-menu-item v-if="!item.children" :key="item.id" :index="item.url">
+              <span slot="title">{{item.title}}</span>
+            </el-menu-item>
+
+          </template>
         </el-menu>
         <!-- 导航结束 -->
       </el-aside>
